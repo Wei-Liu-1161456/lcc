@@ -78,9 +78,15 @@ def login():
             session['user_id'] = user['user_id']
             session['username'] = user['username']
             session['role'] = user['role']
+            session.pop('registration_data', None)
+            
+            # Welcome message for new users
+            if session.get('registration_data', {}).get('show_welcome'):
+                flash(f'Welcome to LCC Issue Tracker, {user["username"]}!', 'success')
             return redirect(user_home_url())
         else:
-            flash('Invalid username or password', 'error')
+            # Use danger category for error messages
+            flash('Invalid username or password', 'danger')
             return render_template('login.html', username=username, error=True)
 
     # This was a GET request, or an invalid POST (no username and/or password),
@@ -164,8 +170,15 @@ def signup():
                 )
                 db.get_db().commit()
 
-                # Redirect to login page with success message
-                flash('Account created successfully! Please log in.', 'success')
+                # Store registration data in session for auto-fill login
+                session['registration_data'] = {
+                    'username': form_data['username'],
+                    'password': form_data['password'],
+                    'show_welcome': True
+                }
+
+                # Use success category for success messages
+                flash('Account created successfully! Please log in with your credentials.', 'success')
                 return redirect(url_for('login'))
 
     # GET request or form validation failed - show form

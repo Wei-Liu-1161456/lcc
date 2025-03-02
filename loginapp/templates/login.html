@@ -14,18 +14,21 @@
                     <form method="post">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control{% if error %} is-invalid{% endif %}" id="username" name="username" value="{{ username if username }}" required>
+                            <input type="text" class="form-control{% if error %} is-invalid{% endif %}" 
+                                   id="username" name="username" 
+                                   value="{{ session.registration_data.username if session.registration_data else (username if username) }}" 
+                                   required>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control{% if error %} is-invalid{% endif %}" id="password" name="password" required>
+                                <input type="password" class="form-control{% if error %} is-invalid{% endif %}" 
+                                       id="password" name="password" 
+                                       value="{{ session.registration_data.password if session.registration_data }}"
+                                       required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="bi bi-eye"></i>
                                 </button>
-                                {% if error %}
-                                <div class="invalid-feedback">Incorrect username or password</div>
-                                {% endif %}
                             </div>
                         </div>
                         <div class="text-center">
