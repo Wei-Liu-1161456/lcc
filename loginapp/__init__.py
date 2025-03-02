@@ -25,6 +25,6 @@ db.init_db(app, connect.dbuser, connect.dbpass, connect.dbhost, connect.dbname,
 
 # Include all modules that define our Flask route-handling functions.
 from loginapp import user
-from loginapp import customer
-from loginapp import staff
+from loginapp import visitor
+from loginapp import helper
 from loginapp import admin

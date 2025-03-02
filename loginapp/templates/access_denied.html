@@ -16,7 +16,7 @@
                 <h1 class="p-3 m-0">Access Denied</h1>
             </div>
             <div class="bg-white border container rounded-bottom p-3">
-                Your account isn't authorised to view this page. You can return <a href="{% if session['role'] == 'customer' %}{{ url_for('customer_home') }}{% elif session['role'] == 'staff' %}{{ url_for('staff_home') }}{% elif session['role'] == 'admin' %}{{ url_for('admin_home') }}{% endif %}">home</a>, or <a href="{{ url_for('logout') }}">log out</a> if you want to sign in with a different account.
+                Your account isn't authorised to view this page. You can return <a href="{% if session['role'] == 'visitor' %}{{ url_for('visitor_home') }}{% elif session['role'] == 'helper' %}{{ url_for('helper_home') }}{% elif session['role'] == 'admin' %}{{ url_for('admin_home') }}{% endif %}">home</a>, or <a href="{{ url_for('logout') }}">log out</a> if you want to sign in with a different account.
             </div>
         </div>
       </div>

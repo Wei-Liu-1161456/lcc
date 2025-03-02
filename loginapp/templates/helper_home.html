@@ -1,0 +1,17 @@
+{% extends 'userbase.html' %}
+
+{% block title %}Helper Home{% endblock %}
+
+{# Set the active page to be highlighted in the navigation bar. #}
+{% set active_page = 'home' %}
+
+{% block content %}
+<section class="container py-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <h1>Helper Home Page</h1>
+            <p class="lead text-muted">Welcome to the LCC Issue Tracker. Here you can manage and respond to maintenance issues at Lincoln Community Campground.</p>
+        </div>
+    </div>
+</section>
+{% endblock %} 
