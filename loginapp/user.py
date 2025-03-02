@@ -151,101 +151,102 @@ def signup():
     to their role-specific homepage.
     """
     if 'loggedin' in session:
-        return redirect(user_home_url())
+         return redirect(user_home_url())
     
-    if request.method == 'POST':
-        # Get form data
-        username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '')
-        first_name = request.form.get('first_name', '').strip()
-        last_name = request.form.get('last_name', '').strip()
-        location = request.form.get('location', '').strip()
-        
-        # Initialize error messages
-        username_error = ''
-        email_error = ''
-        password_error = ''
-        first_name_error = ''
-        last_name_error = ''
-        location_error = ''
-        
-        # Check if account exists
+    if request.method == 'POST' and 'username' in request.form and 'email' in request.form and 'password' in request.form:
+        # Get the details submitted via the form on the signup page, and store
+        # the values in temporary local variables for ease of access.
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+
+        # We start by assuming that everything is okay. If we encounter any
+        # errors during validation, we'll store an error message in one or more
+        # of these variables so we can pass them through to the template.
+        username_error = None
+        email_error = None
+        password_error = None
+
+        # Check whether there's an account with this username in the database.
         with db.get_cursor() as cursor:
-            cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
+            cursor.execute('SELECT user_id FROM users WHERE username = %s;',
+                           (username,))
             account_already_exists = cursor.fetchone() is not None
         
-        # Validate the username
+        # Validate the username, ensuring that it's unique (as we just checked
+        # above) and meets the naming constraints of our web app.
         if account_already_exists:
             username_error = 'An account already exists with this username.'
         elif len(username) > 20:
-            username_error = 'Username must be 20 characters or less.'
-        elif not username:
-            username_error = 'Username is required.'
-        elif not re.match(r'^[A-Za-z0-9_]+$', username):
-            username_error = 'Username must contain only letters, numbers, and underscores.'
-        
-        # Validate the email
-        if not email:
-            email_error = 'Email address is required.'
-        elif not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
-            email_error = 'Please enter a valid email address.'
-        
-        # Validate the password
+            # The user should never see this error during normal conditions,
+            # because we set a maximum length of 20 on the input field in the
+            # template. However, a user or attacker could easily override that
+            # and submit a longer value, so we need to handle that case.
+            username_error = 'Your username cannot exceed 20 characters.'
+        elif not re.match(r'[A-Za-z0-9]+', username):
+            username_error = 'Your username can only contain letters and numbers.'            
+
+        # Validate the new user's email address. Note: The regular expression
+        # we use here isn't a perfect check for a valid address, but is
+        # sufficient for this example.
+        if len(email) > 320:
+            # As above, the user should never see this error under normal
+            # conditions because we set a maximum input length in the template.
+            email_error = 'Your email address cannot exceed 320 characters.'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            email_error = 'Invalid email address.'
+                
+        # Validate password. Think about what other constraints might be useful
+        # here for security (e.g. requiring a certain mix of character types,
+        # or avoiding overly-common passwords). Make sure that you clearly
+        # communicate any rules to the user, either through hints on the signup
+        # page or with clear error messages here.
+        #
+        # Note: Unlike the username and email address, we don't enforce a
+        # maximum password length. Because we'll be storing a hash of the
+        # password in our database, and not the password itself, it doesn't
+        # matter how long a password the user chooses. Whether it's 8 or 800
+        # characters, the hash will always be the same length.
         if len(password) < 8:
-            password_error = 'Password must be at least 8 characters long.'
-        
-        # Validate first name
-        if not first_name:
-            first_name_error = 'First name is required.'
-        elif len(first_name) > 50:
-            first_name_error = 'First name must be 50 characters or less.'
-        
-        # Validate last name
-        if not last_name:
-            last_name_error = 'Last name is required.'
-        elif len(last_name) > 50:
-            last_name_error = 'Last name must be 50 characters or less.'
-        
-        # Validate location
-        if not location:
-            location_error = 'Location is required.'
-        elif len(location) > 50:
-            location_error = 'Location must be 50 characters or less.'
-        
-        if (username_error or email_error or password_error or 
-            first_name_error or last_name_error or location_error):
-            # One or more errors were encountered
+            password_error = 'Please choose a longer password!'
+                
+        if (username_error or email_error or password_error):
+            # One or more errors were encountered, so send the user back to the
+            # signup page with their username and email address pre-populated.
+            # For security reasons, we never send back the password they chose.
             return render_template('signup.html',
-                                  username=username,
-                                  email=email,
-                                  first_name=first_name,
-                                  last_name=last_name,
-                                  location=location,
-                                  username_error=username_error,
-                                  email_error=email_error,
-                                  password_error=password_error,
-                                  first_name_error=first_name_error,
-                                  last_name_error=last_name_error,
-                                  location_error=location_error)
+                                   username=username,
+                                   email=email,
+                                   username_error=username_error,
+                                   email_error=email_error,
+                                   password_error=password_error)
         else:
             # The new account details are valid. Hash the user's new password
             # and create their account in the database.
             password_hash = flask_bcrypt.generate_password_hash(password)
             
+            # Note: In this example, we just assume the SQL INSERT statement
+            # below will run successfully. But what if it doesn't?
+            #
+            # If the INSERT fails for any reason, MySQL Connector will throw an
+            # exception and the user will receive a generic error page. We
+            # should implement our own error handling here to deal with that
+            # possibility, and display a more useful message to the user.
             with db.get_cursor() as cursor:
                 cursor.execute('''
-                               INSERT INTO users (username, password_hash, email, first_name, last_name, location, role, status)
-                               VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                               INSERT INTO users (username, password_hash, email, role)
+                               VALUES (%s, %s, %s, %s);
                                ''',
-                               (username, password_hash, email, first_name, last_name, location, DEFAULT_USER_ROLE, 'active'))
+                               (username, password_hash, email, DEFAULT_USER_ROLE,))
             
             # Now that registration is complete, send the user back to the
             # signup page. We set the `signup_successful` flag to display a
             # post-signup message.
-            return render_template('signup.html', signup_successful=True)
-    
-    # If we get here, it's a GET request, so just show the signup form.
+            return render_template('signup.html', signup_successful=True)            
+
+    # This was a GET request, or an invalid POST (no username, email, and/or
+    # password). Render the signup page with no pre-populated form fields or
+    # error messages.
     return render_template('signup.html')
 
 @app.route('/profile')

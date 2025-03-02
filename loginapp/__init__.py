@@ -1,11 +1,8 @@
 # This script runs automatically when our `loginapp` module is first loaded,
 # and handles all the setup for our Flask app.
 from flask import Flask
-import re
-from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
-flask_bcrypt = Bcrypt(app)
 
 # Set the "secret key" that our app will use to sign session cookies. This can
 # be anything.
@@ -18,7 +15,7 @@ flask_bcrypt = Bcrypt(app)
 # For the purpose of your assignments, you DON'T need to use any of those more
 # advanced and secure methods: it's fine to store your secret key in your
 # source code like we do here.
-app.secret_key = 'Lincoln Community Care Secret Key'
+app.secret_key = 'Example Secret Key (CHANGE THIS TO YOUR OWN SECRET KEY!)'
 
 # Set up database connection.
 from loginapp import connect
@@ -28,6 +25,6 @@ db.init_db(app, connect.dbuser, connect.dbpass, connect.dbhost, connect.dbname,
 
 # Include all modules that define our Flask route-handling functions.
 from loginapp import user
-from loginapp import issues
-from loginapp import profile
+from loginapp import customer
+from loginapp import staff
 from loginapp import admin
