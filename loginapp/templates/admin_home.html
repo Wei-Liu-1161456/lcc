@@ -6,12 +6,103 @@
 {% set active_page = 'home' %}
 
 {% block content %}
-<section class="container py-5 text-center">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <h1>Admin Home Page</h1>
-            <p class="lead text-muted">This is the page an admin user sees when they first sign in. It should provide quick access to the information and features they're most likely to need when using the app.</p>
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
+                             class="rounded-circle" alt="Profile Image" 
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    </div>
+                    <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
+                    <p class="text-muted">Role: {{ user.role.title() }}</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('list_issues') }}" class="btn btn-primary">
+                            <i class="bi bi-list-ul"></i> View Active Issues
+                        </a>
+                        <a href="{{ url_for('list_issues', filter='resolved') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-check-circle"></i> View Resolved Issues
+                        </a>
+                        <a href="{{ url_for('manage_users') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-people"></i> Manage Users
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">System Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <!-- Issue Statistics -->
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Issues</h6>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-primary p-2 w-100">
+                                {{ stats.issues.new }}
+                                <div class="small">New</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-success p-2 w-100">
+                                {{ stats.issues.open }}
+                                <div class="small">Open</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-warning p-2 w-100">
+                                {{ stats.issues.stalled }}
+                                <div class="small">Stalled</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-secondary p-2 w-100">
+                                {{ stats.issues.resolved }}
+                                <div class="small">Resolved</div>
+                            </div>
+                        </div>
+
+                        <!-- User Statistics -->
+                        <div class="col-12">
+                            <h6 class="text-muted mb-3">Users</h6>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <div class="badge bg-info p-2 w-100">
+                                {{ stats.users.visitor }}
+                                <div class="small">Visitors</div>
+                            </div>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <div class="badge bg-success p-2 w-100">
+                                {{ stats.users.helper }}
+                                <div class="small">Helpers</div>
+                            </div>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <div class="badge bg-primary p-2 w-100">
+                                {{ stats.users.admin }}
+                                <div class="small">Admins</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %}

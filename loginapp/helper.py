@@ -17,4 +17,24 @@ def helper_home():
     elif session['role'] != 'helper':
         return render_template('access_denied.html'), 403
 
-    return render_template('helper_home.html') 
+    with db.get_cursor() as cursor:
+        # Get current user data
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
+        user = cursor.fetchone()
+
+        # Get issue statistics
+        cursor.execute('''
+            SELECT status, COUNT(*) as count
+            FROM issues
+            GROUP BY status
+        ''')
+        stats = {
+            'new': 0,
+            'open': 0,
+            'stalled': 0,
+            'resolved': 0
+        }
+        for row in cursor.fetchall():
+            stats[row['status']] = row['count']
+
+    return render_template('helper_home.html', user=user, stats=stats) 

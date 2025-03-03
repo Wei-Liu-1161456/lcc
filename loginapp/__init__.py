@@ -28,3 +28,4 @@ from loginapp import user
 from loginapp import visitor
 from loginapp import helper
 from loginapp import admin
+from loginapp import issues

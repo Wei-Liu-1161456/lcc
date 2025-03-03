@@ -17,4 +17,9 @@ def visitor_home():
     elif session['role'] != 'visitor':
         return render_template('access_denied.html'), 403
 
-    return render_template('visitor_home.html') 
+    # Get current user data
+    with db.get_cursor() as cursor:
+        cursor.execute('SELECT * FROM users WHERE user_id = %s', (session['user_id'],))
+        user = cursor.fetchone()
+
+    return render_template('visitor_home.html', user=user) 

@@ -31,8 +31,8 @@ INSERT INTO `users` (`username`, `password_hash`, `email`, `first_name`, `last_n
 ('helper3', '$2b$12$b7cX5doGboDUr00bc8zWH.C0gPi4HVtjM6WlCJFyo13uX2uz0E/3C', 'helper3@example.com', 'Helper3', 'User', 'Christchurch', 'helper', 'active'),
 ('helper4', '$2b$12$fGLNfa.4xmpC68Z23iFMmO2QmeokGsCscvlkNMFIQxc.2LLLDJVJu', 'helper4@example.com', 'Helper4', 'User', 'Canterbury', 'helper', 'active'),
 ('helper5', '$2b$12$rruI2yYM5t5Sp9v7VndmeuUKdbBo1qA.aU9AahjgXTbONTc6iSKwK', 'helper5@example.com', 'Helper5', 'User', 'Lincoln', 'helper', 'active'),
-('admin1', '$2b$12$oHFTBWUBqcJ7Tf0R6zNIZOkPr/wbZ4y5ToCT.3ErZ3ha6tlFMnVr6', 'admin1@example.com', 'Admin6', 'User', 'Christchurch', 'admin', 'active'),
-('admin2', '$2b$12$2rHmxqsTmYPtIabgSRYgdeyVsGEDj9CSJNpeZrkyrg96f8LgQKgke', 'admin2@example.com', 'Admin7', 'User', 'Canterbury', 'admin', 'active');
+('admin1', '$2b$12$oHFTBWUBqcJ7Tf0R6zNIZOkPr/wbZ4y5ToCT.3ErZ3ha6tlFMnVr6', 'admin1@example.com', 'Admin1', 'User', 'Christchurch', 'admin', 'active'),
+('admin2', '$2b$12$2rHmxqsTmYPtIabgSRYgdeyVsGEDj9CSJNpeZrkyrg96f8LgQKgke', 'admin2@example.com', 'Admin2', 'User', 'Canterbury', 'admin', 'active');
 
 -- Issues table data
 INSERT INTO `issues` (`user_id`, `summary`, `description`, `created_at`, `status`) VALUES

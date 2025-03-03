@@ -1,0 +1,93 @@
+{% extends 'userbase.html' %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% set active_page = 'admin' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Manage Users</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Search form at the top -->
+                    <div class="mb-4">
+                        <form method="get">
+                            <label class="form-label">Search Users</label>
+                            <div class="text-muted mb-2">
+                                Search by username, first name, or last name
+                            </div>
+                            <div class="input-group">
+                                <input type="search" name="search" 
+                                       class="form-control" 
+                                       placeholder="Enter search terms..."
+                                       value="{{ request.args.get('search', '') }}">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="bi bi-search"></i> Search
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Users table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr>
+                                    <td class="text-nowrap">
+                                        <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}"
+                                             class="rounded-circle me-2" alt="Profile"
+                                             style="width: 32px; height: 32px; object-fit: cover;">
+                                        {{ user.first_name }} {{ user.last_name }}
+                                        <small class="text-muted">({{ user.username }})</small>
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('update_user_role', user_id=user.user_id) }}" class="d-inline">
+                                            <select name="role" class="form-select form-select-sm" 
+                                                    onchange="this.form.submit()"
+                                                    {% if user.user_id == session['user_id'] %}disabled{% endif %}>
+                                                <option value="visitor" {{ 'selected' if user.role == 'visitor' }}>Visitor</option>
+                                                <option value="helper" {{ 'selected' if user.role == 'helper' }}>Helper</option>
+                                                <option value="admin" {{ 'selected' if user.role == 'admin' }}>Admin</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('update_user_status', user_id=user.user_id) }}" class="d-inline">
+                                            <select name="status" class="form-select form-select-sm"
+                                                    onchange="this.form.submit()"
+                                                    {% if user.user_id == session['user_id'] %}disabled{% endif %}>
+                                                <option value="active" {{ 'selected' if user.status == 'active' }}>Active</option>
+                                                <option value="inactive" {{ 'selected' if user.status == 'inactive' }}>Inactive</option>
+                                            </select>
+                                        </form>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ url_for('view_user', user_id=user.user_id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-eye"></i> View Profile
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

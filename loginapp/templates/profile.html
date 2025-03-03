@@ -6,34 +6,239 @@
 {% set active_page = 'profile' %}
 
 {% block content %}
-<section class="container py-5">
-    <div class="row justify-content-center text-center">
-        <div class="col-lg-7">
-            <h1>{{ profile.role.title() }} Profile</h1>
-            <p class="lead text-muted">Here's everything we know about you.</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ user.role.title() }} Profile</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('profile') }}" enctype="multipart/form-data">
+                        <!-- Profile Image Section -->
+                        <div class="text-center mb-4">
+                            <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
+                                 class="rounded-circle mb-3" alt="Profile Image" style="width: 150px; height: 150px; object-fit: cover;">
+                            <div>
+                                <input type="file" class="form-control" id="profile_image" name="profile_image" accept="image/*" style="display: none;">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('profile_image').click()">
+                                    <i class="bi bi-camera"></i> Change Photo
+                                </button>
+                                {% if user.profile_image %}
+                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteProfileImage()">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Basic Information -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control{% if errors.email %} is-invalid{% endif %}" 
+                                       id="email" name="email" value="{{ user.email }}" required>
+                                {% if errors.email %}
+                                <div class="invalid-feedback">{{ errors.email }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="first_name" class="form-label">First Name</label>
+                                <input type="text" class="form-control{% if errors.first_name %} is-invalid{% endif %}" 
+                                       id="first_name" name="first_name" value="{{ user.first_name }}" required maxlength="50">
+                                {% if errors.first_name %}
+                                <div class="invalid-feedback">{{ errors.first_name }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="last_name" class="form-label">Last Name</label>
+                                <input type="text" class="form-control{% if errors.last_name %} is-invalid{% endif %}" 
+                                       id="last_name" name="last_name" value="{{ user.last_name }}" required maxlength="50">
+                                {% if errors.last_name %}
+                                <div class="invalid-feedback">{{ errors.last_name }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control{% if errors.location %} is-invalid{% endif %}" 
+                                   id="location" name="location" value="{{ user.location }}" required maxlength="50">
+                            {% if errors.location %}
+                            <div class="invalid-feedback">{{ errors.location }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Save Changes
+                            </button>
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                                <i class="bi bi-key"></i> Change Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-</section>
-    
-<section class="container">
-    <form>
-        <div class="row justify-content-center">
-            <div class="col-lg-3 mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" value="{{ profile.username }}" disabled>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="col-lg-3 mb-3">
-                <label for="useremail" class="form-label">Email</label>
-                <input type="text" class="form-control" id="useremail" name="useremail" value="{{ profile.email }}" disabled>
-            </div>
+            <form id="passwordForm">
+                <div class="modal-body">
+                    <div class="alert alert-danger" id="passwordError" style="display: none;"></div>
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="new_password" name="new_password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            Password must be at least 8 characters and include uppercase, lowercase, and numbers.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                            <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                </div>
+            </form>
         </div>
-        <div class="my-3 row justify-content-center">
-            <div class="col-lg-6">
-                <p>You could make the fields on this form editable, and add buttons to let users save or cancel any changes they make.</p>
-                <hr />
-                <p><small><em>Hint: Remember to think about validation and error handling: for example, what happens if users enter an invalid email address or a username that's already taken?</em></small></p>
-            </div>
+    </div>
+</div>
+
+<!-- Add Toast container to the bottom-right corner -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-    </form>
-</section>
+    </div>
+</div>
+
+<script>
+    // Update image preview only
+    document.getElementById('profile_image').addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.querySelector('img.rounded-circle').src = e.target.result;
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Delete profile image
+    function deleteProfileImage() {
+        if (confirm('Are you sure you want to remove your profile image?')) {
+            fetch('{{ url_for("delete_profile_image") }}', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector('img.rounded-circle').src = '{{ url_for("static", filename="uploads/profiles/300.jpeg") }}';
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    // Password visibility toggle
+    function setupPasswordToggle(inputId, toggleId) {
+        const toggleBtn = document.querySelector(toggleId);
+        const passwordInput = document.querySelector(inputId);
+        
+        toggleBtn.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('bi-eye');
+            this.querySelector('i').classList.toggle('bi-eye-slash');
+        });
+    }
+
+    setupPasswordToggle('#new_password', '#toggleNewPassword');
+    setupPasswordToggle('#confirm_password', '#toggleConfirmPassword');
+
+    // Password form validation
+    document.getElementById('passwordForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const errorDiv = document.getElementById('passwordError');
+        
+        // Validate password match
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+        
+        if (newPassword !== confirmPassword) {
+            errorDiv.textContent = 'New passwords do not match!';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Send password update request
+        fetch('{{ url_for("change_password") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                current_password: document.getElementById('current_password').value,
+                new_password: newPassword,
+                confirm_password: confirmPassword
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const successToast = document.getElementById('successToast');
+                successToast.querySelector('.toast-body').textContent = data.message;
+                const bsToast = new bootstrap.Toast(successToast);
+                bsToast.show();
+                
+                // Clear form and close modal
+                document.getElementById('passwordForm').reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                modal.hide();
+            } else {
+                errorDiv.textContent = data.error;
+                errorDiv.style.display = 'block';
+            }
+        });
+    });
+</script>
 {% endblock %}

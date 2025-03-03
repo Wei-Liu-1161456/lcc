@@ -6,12 +6,73 @@
 {% set active_page = 'home' %}
 
 {% block content %}
-<section class="container py-5 text-center">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-7">
-            <h1>Helper Home Page</h1>
-            <p class="lead text-muted">Welcome to the LCC Issue Tracker. Here you can manage and respond to maintenance issues at Lincoln Community Campground.</p>
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-4">
+                        <img src="{{ url_for('static', filename='uploads/profiles/' + (user.profile_image if user.profile_image else '300.jpeg')) }}" 
+                             class="rounded-circle" alt="Profile Image" 
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                    </div>
+                    <h2 class="card-title">Welcome, {{ user.first_name }}!</h2>
+                    <p class="text-muted">Role: {{ user.role.title() }}</p>
+                </div>
+            </div>
+
+            <!-- Issue Statistics -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Issue Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-primary p-2 w-100">
+                                {{ stats.new }}
+                                <div class="small">New</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-success p-2 w-100">
+                                {{ stats.open }}
+                                <div class="small">Open</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-warning p-2 w-100">
+                                {{ stats.stalled }}
+                                <div class="small">Stalled</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 mb-3">
+                            <div class="badge bg-secondary p-2 w-100">
+                                {{ stats.resolved }}
+                                <div class="small">Resolved</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('list_issues') }}" class="btn btn-primary">
+                            <i class="bi bi-list-ul"></i> View Active Issues
+                        </a>
+                        <a href="{{ url_for('list_issues', filter='resolved') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-check-circle"></i> View Resolved Issues
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+</div>
 {% endblock %} 
